@@ -73,14 +73,14 @@ tempfs.mkdir({
 
 *   `name: String`
 
-    If set, join the two paths `options.dir || tempfs.tmpdir()` and
+    If set, join the two paths `options.dir || tempfs.dir()` and
     `options.name` together and use the result as the custom
     filename/pathname.
 
 *   `dir: String`
 
     Where to put the generated tempfile or tempdir. Also see `options.name`
-    above. Default: tempfs.tmpdir()
+    above. Default: tempfs.dir()
 
 *   `prefix: String`
 
