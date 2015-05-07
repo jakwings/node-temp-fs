@@ -21,7 +21,7 @@ npm install temp-fs
 var tempfs = require('temp-fs');
 
 // Create a tempfile in the system-provided tempdir.
-ts.open(function (err, file) {
+tempfs.open(function (err, file) {
     if (err) {
         throw err;
     }
@@ -51,8 +51,8 @@ ts.open(function (err, file) {
 
 *   `track: Boolean`
 
-    If set to `true`, let tempfs manage the the current file/directory for
-    you. If set to `false`, don't let tempfs manage it. Otherwise, use the
+    If set to `true`, let temp-fs manage the the current file/directory for
+    you. If set to `false`, don't let temp-fs manage it. Otherwise, use the
     current global setting.
 
 *   `mode: Number`
@@ -67,7 +67,8 @@ ts.open(function (err, file) {
 
 *   `dir: String`
 
-    See `options.name` above. Default: tempfs.tmpdir()
+    Where to put the generated tempfile or tempdir. Also see `options.name`
+    above. Default: tempfs.tmpdir()
 
 *   `prefix: String`
 
@@ -80,8 +81,8 @@ ts.open(function (err, file) {
 *   `template: String`
 
     A string containing some capital letters Xs for substitution with random
-    characters. Then it is used as part of the filename/dirname.
-
+    characters. Then it is used as part of the filename/dirname. Just like what
+    you do with the `mktemp (3)` function in the C library.
 
 ### tempfs.track(on = true)
 
