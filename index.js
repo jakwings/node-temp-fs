@@ -351,5 +351,5 @@ module.exports = {
   mkdir: generateDir,
   mkdirSync: generateDirSync,
   name: generateName,
-  dir: os.tmpDir.bind(os)
+  dir: function () { return ps.resolve(os.tmpDir()); }
 };
