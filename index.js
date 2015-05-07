@@ -321,9 +321,10 @@ function generateName(opts) {
   }
   if (opts.template) {
     if (TEMPLATE_RE.test(opts.template)) {
-      return opts.template.replace(TEMPLATE_RE, function (s) {
+      var name = opts.template.replace(TEMPLATE_RE, function (s) {
         return randomString(s.length);
       });
+      return ps.join(opts.dir || os.tmpDir(), name);
     } else {
       throw new Error('Invalid template string.');
     }
