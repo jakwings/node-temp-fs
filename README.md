@@ -22,9 +22,8 @@ var tempfs = require('temp-fs');
 
 // Create a tempfile in the system-provided tempdir.
 tempfs.open(function (err, file) {
-    if (err) {
-        throw err;
-    }
+    if (err) { throw err; }
+
     console.log(file.path, file.fd);
     // async
     file.unlink(function () {
@@ -33,6 +32,19 @@ tempfs.open(function (err, file) {
     // sync
     // No problem even if unlink() is called twice.
     file.unlink();
+});
+
+// Create a tempdir in current directory.
+tempfs.mkdir({
+    dir: './',
+    recursive: true,  // It and its content will be remove recursively.
+    track: true  // Track this directory.
+}, function (err, dir) {
+    if (err) { throw err; }
+
+    console.log(dir.path, dir.recursive);
+    throw new Error('Since it is tracked, tempfs will remove it for you.');
+    dir.unlink();
 });
 ```
 
@@ -93,7 +105,8 @@ is turned on again before the program exits.
 
 ### tempfs.dir()
 
-Return the path of a system-provided tempdir.
+Return the path of a system-provided tempdir. The path does not contain
+trailing path separators.
 
 ### tempfs.name([options])
 
