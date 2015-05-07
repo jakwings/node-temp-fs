@@ -96,7 +96,7 @@ function generateDirUnlinker(recursive, path) {
     }
     called = true;
     if (callback) {
-      var rmdir = recursive ? rm : fs.rmdir;
+      var rmdir = recursive ? rm : fs.rmdir.bind(fs);
       rmdir(path, function (err) {
         if (trackedDirs[path] === unlink) {
           delete trackedDirs[path];
