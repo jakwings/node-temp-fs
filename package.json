@@ -1,6 +1,6 @@
 {
   "name": "temp-fs",
-  "version": "0.9.1",
+  "version": "0.9.2",
   "description": "Temporary files, directories or names!",
   "license": "MIT",
   "author": "Jak Wings <jakwings@gmail.com>",
