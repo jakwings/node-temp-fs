@@ -5,6 +5,7 @@ var cs = require('crypto');
 var rm = require('rimraf');
 
 
+var IS_WINDOWS = process.platform === 'win32';
 var SYS_DIR_MODE = 0700;
 var SYS_FILE_MODE = 0600;
 var SYS_FILE_FLAGS = 'wx+';
@@ -23,6 +24,21 @@ process.addListener('exit', function (exitcode) {
   tracking && clearSync();
 });
 
+/* History:
+ * https://github.com/joyent/node/blob/a11bf99ce0dae4d8f4de8a9c0c32159c1a9ecfbf/lib/os.js#L42-L47
+ * https://github.com/joyent/node/blob/120e5a24df76deb5019abec9744ace94f0f3746a/lib/os.js#L45-L56
+ * https://github.com/iojs/io.js/blob/6c80e38b014b7be570ffafa91032a6d67d7dd4ae/lib/os.js#L25-L40
+ */
+function tmpdir() {
+  var path;
+  if (IS_WINDOWS) {
+    path = process.env.TEMP || process.env.TMP ||
+           (process.env.SystemRoot || process.env.windir) + '\\temp';
+  } else {
+    path = process.env.TMPDIR || process.env.TMP || process.env.TEMP || '/tmp';
+  }
+  return ps.resolve(path);
+}
 
 function track(on) {
   tracking = (on == null ? true : Boolean(on));
@@ -317,14 +333,14 @@ function randomString(length) {
 function generateName(opts) {
   opts = opts || {};
   if (opts.name) {
-    return ps.join(opts.dir || os.tmpDir(), opts.name);
+    return ps.join(opts.dir || tmpdir(), opts.name);
   }
   if (opts.template) {
     if (TEMPLATE_RE.test(opts.template)) {
       var name = opts.template.replace(TEMPLATE_RE, function (s) {
         return randomString(s.length);
       });
-      return ps.join(opts.dir || os.tmpDir(), name);
+      return ps.join(opts.dir || tmpdir(), name);
     } else {
       throw new Error('Invalid template string.');
     }
@@ -338,7 +354,7 @@ function generateName(opts) {
     randomString(12),
     opts.suffix || ''
   ].join('');
-  return ps.join(opts.dir || os.tmpDir(), name);
+  return ps.join(opts.dir || tmpdir(), name);
 }
 
 
@@ -351,5 +367,5 @@ module.exports = {
   mkdir: generateDir,
   mkdirSync: generateDirSync,
   name: generateName,
-  dir: function () { return ps.resolve(os.tmpDir()); }
+  dir: tmpdir
 };
