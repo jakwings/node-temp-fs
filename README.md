@@ -63,9 +63,10 @@ tempfs.mkdir({
 
 *   `track: Boolean`
 
-    If set to `true`, let temp-fs manage the the current file/directory for
-    you. If set to `false`, don't let temp-fs manage it. Otherwise, use the
-    current global setting.
+    If set to `true`, let temp-fs manage the the current file/directory for you
+    even if the global tracking is off. If set to `false`, don't let temp-fs
+    manage it even if the global tracking is on. Otherwise, use the current
+    global setting.
 
 *   `mode: Number`
 
@@ -102,6 +103,12 @@ Use it to switch global files/directories tracking on or off. Turn it on if
 you don't want to manually delete everything. When it is turned off, all
 recorded files and directories will not be removed but still kept in case it
 is turned on again before the program exits.
+
+This switch does not affect manually tracked files through `options.track`.
+They will be removed automatically on exit.
+
+**Note: When an uncaught exception occurs, all temporary files and directories
+will be removed no matter it is on or off.**
 
 ### tempfs.dir()
 
