@@ -74,7 +74,7 @@ tempfs.mkdir({
 *   `name: String`
 
     If set, join the two paths `options.dir || tempfs.dir()` and
-    `options.name` together and use the result as the custom
+    `options.name` together and use the result as the customized
     filename/pathname.
 
 *   `dir: String`
@@ -110,7 +110,7 @@ trailing path separators.
 
 ### tempfs.name([options])
 
-Return a custom/random filename/dirname. Options are documented at
+Return a customized/random filename/dirname. Options are documented at
 [options](#options).
 
 ### tempfs.open([options], [callback])
