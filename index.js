@@ -19,9 +19,18 @@ var noop = function (callback) {
 var tracking = false;
 var trackedDirs = {};
 var trackedFiles = {};
+var manuallyTrackedDirs = {};
+var manuallyTrackedFiles = {};
 
 process.addListener('exit', function (exitcode) {
-  tracking && clearSync();
+  if (tracking) {
+    clearSync();
+  } else {
+    clearManuallyTracked();
+  }
+});
+process.addListener('uncaughtException', function (err) {
+  clearSync();
 });
 
 /* History:
@@ -44,12 +53,27 @@ function track(on) {
   tracking = (on == null ? true : Boolean(on));
 }
 
+function clearManuallyTracked() {
+  for (var k in manuallyTrackedFiles) {
+    manuallyTrackedFiles[k] && manuallyTrackedFiles[k]();
+  }
+  for (var k in manuallyTrackedDirs) {
+    manuallyTrackedDirs[k] && manuallyTrackedDirs[k]();
+  }
+}
+
 function clearSync() {
   for (var k in trackedFiles) {
     trackedFiles[k] && trackedFiles[k]();
   }
+  for (var k in manuallyTrackedFiles) {
+    manuallyTrackedFiles[k] && manuallyTrackedFiles[k]();
+  }
   for (var k in trackedDirs) {
     trackedDirs[k] && trackedDirs[k]();
+  }
+  for (var k in manuallyTrackedDirs) {
+    manuallyTrackedDirs[k] && manuallyTrackedDirs[k]();
   }
 }
 
@@ -62,6 +86,13 @@ function clear(callback) {
       });
     }
   }
+  for (var k in manuallyTrackedFiles) {
+    if (manuallyTrackedFiles[k]) {
+      jobs.push(function (next) {
+        manuallyTrackedFiles[k](next);
+      });
+    }
+  }
   for (var k in trackedDirs) {
     if (trackedDirs[k]) {
       jobs.push(function (next) {
@@ -69,11 +100,18 @@ function clear(callback) {
       });
     }
   }
+  for (var k in manuallyTrackedDirs) {
+    if (manuallyTrackedDirs[k]) {
+      jobs.push(function (next) {
+        manuallyTrackedDirs[k](next);
+      });
+    }
+  }
   callback && jobs.push(function (next) { callback(); });
   queue(jobs);
 }
 
-function generateFileUnlinker(fd, path) {
+function generateFileUnlinker(fd, path, manually) {
   var called = false;
   var unlink = function unlink(callback) {
     if (called) {
@@ -81,10 +119,13 @@ function generateFileUnlinker(fd, path) {
       return;
     }
     called = true;
-    this.called = true;
     if (callback) {
       fs.unlink(path, function (err) {
-        if (trackedFiles[fd] === unlink) {
+        if (manually) {
+          if (manuallyTrackedFiles[fd] === unlink) {
+            delete manuallyTrackedFiles[fd];
+          }
+        } else if (trackedFiles[fd] === unlink) {
           delete trackedFiles[fd];
         }
         callback && callback();
@@ -93,17 +134,25 @@ function generateFileUnlinker(fd, path) {
       try {
         fs.unlinkSync(path);
       } finally {
-        if (trackedFiles[fd] === unlink) {
+        if (manually) {
+          if (manuallyTrackedFiles[fd] === unlink) {
+            delete manuallyTrackedFiles[fd];
+          }
+        } else if (trackedFiles[fd] === unlink) {
           delete trackedFiles[fd];
         }
       }
     }
   };
-  trackedFiles[fd] = unlink;
+  if (manually) {
+    manuallyTrackedFiles[fd] = unlink;
+  } else {
+    trackedFiles[fd] = unlink;
+  }
   return unlink;
 }
 
-function generateDirUnlinker(recursive, path) {
+function generateDirUnlinker(recursive, path, manually) {
   var called = false;
   var unlink = function unlink(callback) {
     if (called) {
@@ -114,7 +163,11 @@ function generateDirUnlinker(recursive, path) {
     if (callback) {
       var rmdir = recursive ? rm : fs.rmdir.bind(fs);
       rmdir(path, function (err) {
-        if (trackedDirs[path] === unlink) {
+        if (manually) {
+          if (manuallyTrackedDirs[path] === unlink) {
+            delete manuallyTrackedDirs[path];
+          }
+        } else if (trackedDirs[path] === unlink) {
           delete trackedDirs[path];
         }
         callback && callback();
@@ -124,13 +177,21 @@ function generateDirUnlinker(recursive, path) {
       try {
         rmdirSync(path);
       } finally {
-        if (trackedDirs[path] === unlink) {
+        if (manually) {
+          if (manuallyTrackedDirs[path] === unlink) {
+            delete manuallyTrackedDirs[path];
+          }
+        } else if (trackedDirs[path] === unlink) {
           delete trackedDirs[path];
         }
       }
     }
   };
-  trackedDirs[path] = unlink;
+  if (manually) {
+    manuallyTrackedDirs[path] = unlink;
+  } else {
+    trackedDirs[path] = unlink;
+  }
   return unlink;
 }
 
@@ -157,8 +218,8 @@ function registerFilename(name, opts, callback) {
       }
       var unlink;
       if (opts.track || (opts.track == null && tracking)) {
-        if (!trackedFiles[fd]) {
-          unlink = generateFileUnlinker(fd, path);
+        if (!trackedFiles[fd] && !manuallyTrackedFiles[fd]) {
+          unlink = generateFileUnlinker(fd, path, Boolean(opts.track));
         } else {
           throw new Error("Didn't you delete files via file.unlink()?");
         }
@@ -196,9 +257,8 @@ function registerFilenameSync(name, opts) {
     var path = fs.realpathSync(name);
     var unlink;
     if (opts.track || (opts.track == null && tracking)) {
-      if (!trackedFiles[fd]) {
-        unlink = generateFileUnlinker(fd, path);
-        trackedFiles[fd] = unlink;
+      if (!trackedFiles[fd] && !manuallyTrackedFiles[fd]) {
+        unlink = generateFileUnlinker(fd, path, Boolean(opts.track));
       } else {
         throw new Error("Didn't you delete files via file.unlink()?");
       }
@@ -237,8 +297,8 @@ function registerDirname(name, opts, callback) {
       var unlink;
       var recursive = Boolean(opts.recursive);
       if (opts.track || (opts.track == null && tracking)) {
-        if (!trackedDirs[path]) {
-          unlink = generateDirUnlinker(recursive, path);
+        if (!trackedDirs[path] && !manuallyTrackedDirs[path]) {
+          unlink = generateDirUnlinker(recursive, path, Boolean(opts.track));
         } else {
           throw new Error("Didn't you delete directories via directory.unlink()?");
         }
@@ -277,8 +337,8 @@ function registerDirnameSync(name, opts) {
     var unlink;
     var recursive = Boolean(opts.recursive);
     if (opts.track || (opts.track == null && tracking)) {
-      if (!trackedDirs[path]) {
-        unlink = generateDirUnlinker(recursive, path);
+      if (!trackedDirs[path] && !manuallyTrackedDirs[path]) {
+        unlink = generateDirUnlinker(recursive, path, Boolean(opts.track));
       } else {
         throw new Error("Didn't you delete directories via directory.unlink()?");
       }
