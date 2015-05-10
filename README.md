@@ -112,8 +112,9 @@ will be removed no matter it is on or off.**
 
 ### tempfs.dir()
 
-Return the path of a system-provided tempdir. The path does not contain
-trailing path separators.
+Return the path of a system-provided tempdir. You should not make any
+assumption about whether the path contains a trailing path separator, or it
+is a real path.
 
 ### tempfs.name([options])
 
