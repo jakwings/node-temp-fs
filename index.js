@@ -36,16 +36,17 @@ process.addListener('uncaughtException', function (err) {
  * https://github.com/joyent/node/blob/a11bf99ce0dae4d8f4de8a9c0c32159c1a9ecfbf/lib/os.js#L42-L47
  * https://github.com/joyent/node/blob/120e5a24df76deb5019abec9744ace94f0f3746a/lib/os.js#L45-L56
  * https://github.com/iojs/io.js/blob/6c80e38b014b7be570ffafa91032a6d67d7dd4ae/lib/os.js#L25-L40
+ *
+ * Reason for my choice:
+ *   Never trust the return string.
  */
 function tmpdir() {
-  var path;
   if (IS_WINDOWS) {
-    path = process.env.TEMP || process.env.TMP ||
+    return process.env.TEMP || process.env.TMP ||
            (process.env.SystemRoot || process.env.windir) + '\\temp';
   } else {
-    path = process.env.TMPDIR || process.env.TMP || process.env.TEMP || '/tmp';
+    return process.env.TMPDIR || process.env.TMP || process.env.TEMP || '/tmp';
   }
-  return ps.resolve(path);
 }
 
 function track(on) {
