@@ -1,5 +1,4 @@
 var fs = require('fs');
-var os = require('os');
 var ps = require('path');
 var cs = require('crypto');
 var rm = require('rimraf');
