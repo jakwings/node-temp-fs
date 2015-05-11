@@ -12,9 +12,6 @@ var TEMPLATE_RE = /X+/g;
 var CHARS = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 
 
-var noop = function (callback) {
-  callback && process.nextTick(callback);
-};
 var tracking = false;
 var trackedDirs = {};
 var trackedFiles = {};
@@ -115,6 +112,52 @@ function clear(callback) {
   queue(jobs);
 }
 
+function generateSimpleFileUnlinker(path) {
+  var called = false;
+  var unlink = function unlink(callback) {
+    if (called) {
+      return;
+    }
+    called = true;
+    if (callback) {
+      fs.unlink(path, function (err) {
+        callback && callback(err);
+      });
+    } else {
+      fs.unlinkSync(path);
+    }
+  };
+  return unlink;
+}
+
+function generateSimpleDirUnlinker(path, recursive) {
+  var called = false;
+  var unlink = function unlink(callback) {
+    if (called) {
+      return;
+    }
+    called = true;
+    if (callback) {
+      if (recursive) {
+        rm(path, function (err) {
+          callback && callback(err);
+        });
+      } else {
+        fs.rmdir(path, function (err) {
+          callback && callback(err);
+        });
+      }
+    } else {
+      if (recursive) {
+        rm.sync(path);
+      } else {
+        fs.rmdirSync(path);
+      }
+    }
+  };
+  return unlink;
+}
+
 function generateFileUnlinker(fd, path, manually) {
   var called = false;
   var unlink = function unlink(callback) {
@@ -129,7 +172,7 @@ function generateFileUnlinker(fd, path, manually) {
         } else {
           delete trackedFiles[fd];
         }
-        callback && callback();
+        callback && callback(null);
       });
     } else {
       try {
@@ -166,12 +209,15 @@ function generateDirUnlinker(recursive, path, manually) {
         } else {
           delete trackedDirs[path];
         }
-        callback && callback();
+        callback && callback(null);
       });
     } else {
-      var rmdirSync = recursive ? rm.sync.bind(rm) : fs.rmdirSync.bind(fs);
       try {
-        rmdirSync(path);
+        if (recursive) {
+          rm.sync(path);
+        } else {
+          fs.rmdirSync(path);
+        }
       } finally {
         if (manually) {
           delete manuallyTrackedDirs[path];
@@ -214,7 +260,7 @@ function registerFilename(name, opts, callback) {
         throw new Error("Didn't you delete files via file.unlink()?");
       }
     } else {
-      unlink = noop;
+      unlink = generateSimpleFileUnlinker(path);
     }
     callback({path: path, fd: fd, unlink: unlink});
   });
@@ -252,7 +298,7 @@ function registerFilenameSync(name, opts) {
         throw new Error("Didn't you delete files via file.unlink()?");
       }
     } else {
-      unlink = noop;
+      unlink = generateSimpleFileUnlinker(path);
     }
     return {path: path, fd: fd, unlink: unlink};
   } catch (err) {
@@ -288,7 +334,7 @@ function registerDirname(name, opts, callback) {
         throw new Error("Didn't you delete directories via directory.unlink()?");
       }
     } else {
-      unlink = noop;
+      unlink = generateSimpleDirUnlinker(path, recursive);
     }
     callback({path: path, recursive: recursive, unlink: unlink});
   });
@@ -327,7 +373,7 @@ function registerDirnameSync(name, opts) {
         throw new Error("Didn't you delete directories via directory.unlink()?");
       }
     } else {
-      unlink = noop;
+      unlink = generateSimpleDirUnlinker(path, recursive);
     }
     return {path: path, recursive: recursive, unlink: unlink};
   } catch (err) {
