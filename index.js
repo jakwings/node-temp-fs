@@ -55,26 +55,34 @@ function track(on) {
 }
 
 function clearManuallyTracked() {
+  var unlinkers = [];
   for (var k in manuallyTrackedFiles) {
-    manuallyTrackedFiles[k] && manuallyTrackedFiles[k]();
+    manuallyTrackedFiles[k] && unlinkers.push(manuallyTrackedFiles[k]);
   }
   for (var k in manuallyTrackedDirs) {
-    manuallyTrackedDirs[k] && manuallyTrackedDirs[k]();
+    manuallyTrackedDirs[k] && unlinkers.push(manuallyTrackedDirs[k]);
+  }
+  for (var i = 0, l = unlinkers.length; i < l; i++) {
+    unlinkers[i]();
   }
 }
 
 function clearSync() {
+  var unlinkers = [];
   for (var k in trackedFiles) {
-    trackedFiles[k] && trackedFiles[k]();
+    trackedFiles[k] && unlinkers.push(trackedFiles[k]);
   }
   for (var k in manuallyTrackedFiles) {
-    manuallyTrackedFiles[k] && manuallyTrackedFiles[k]();
+    manuallyTrackedFiles[k] && unlinkers.push(manuallyTrackedFiles[k]);
   }
   for (var k in trackedDirs) {
-    trackedDirs[k] && trackedDirs[k]();
+    trackedDirs[k] && unlinkers.push(trackedDirs[k]);
   }
   for (var k in manuallyTrackedDirs) {
-    manuallyTrackedDirs[k] && manuallyTrackedDirs[k]();
+    manuallyTrackedDirs[k] && unlinkers.push(manuallyTrackedDirs[k]);
+  }
+  for (var i = 0, l = unlinkers.length; i < l; i++) {
+    unlinkers[i]();
   }
 }
 
