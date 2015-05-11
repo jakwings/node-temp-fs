@@ -119,7 +119,6 @@ function generateFileUnlinker(fd, path, manually) {
   var called = false;
   var unlink = function unlink(callback) {
     if (called) {
-      callback && process.nextTick(callback);
       return;
     }
     called = true;
@@ -160,7 +159,6 @@ function generateDirUnlinker(recursive, path, manually) {
   var called = false;
   var unlink = function unlink(callback) {
     if (called) {
-      callback && process.nextTick(callback);
       return;
     }
     called = true;
