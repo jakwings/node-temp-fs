@@ -28,9 +28,13 @@ process.addListener('exit', function (exitcode) {
     clearManuallyTracked();
   }
 });
-process.addListener('uncaughtException', function (err) {
+
+var onUncaughtException = function (err) {
+  process.removeListener('uncaughtException', onUncaughtException);
   clearSync();
-});
+  throw err;
+};
+process.addListener('uncaughtException', onUncaughtException);
 
 /* History:
  * https://github.com/joyent/node/blob/a11bf99ce0dae4d8f4de8a9c0c32159c1a9ecfbf/lib/os.js#L42-L47
