@@ -125,10 +125,8 @@ function generateFileUnlinker(fd, path, manually) {
     if (callback) {
       fs.unlink(path, function (err) {
         if (manually) {
-          if (manuallyTrackedFiles[fd] === unlink) {
-            delete manuallyTrackedFiles[fd];
-          }
-        } else if (trackedFiles[fd] === unlink) {
+          delete manuallyTrackedFiles[fd];
+        } else {
           delete trackedFiles[fd];
         }
         callback && callback();
@@ -138,10 +136,8 @@ function generateFileUnlinker(fd, path, manually) {
         fs.unlinkSync(path);
       } finally {
         if (manually) {
-          if (manuallyTrackedFiles[fd] === unlink) {
-            delete manuallyTrackedFiles[fd];
-          }
-        } else if (trackedFiles[fd] === unlink) {
+          delete manuallyTrackedFiles[fd];
+        } else {
           delete trackedFiles[fd];
         }
       }
@@ -166,10 +162,8 @@ function generateDirUnlinker(recursive, path, manually) {
       var rmdir = recursive ? rm : fs.rmdir.bind(fs);
       rmdir(path, function (err) {
         if (manually) {
-          if (manuallyTrackedDirs[path] === unlink) {
-            delete manuallyTrackedDirs[path];
-          }
-        } else if (trackedDirs[path] === unlink) {
+          delete manuallyTrackedDirs[path];
+        } else {
           delete trackedDirs[path];
         }
         callback && callback();
@@ -180,10 +174,8 @@ function generateDirUnlinker(recursive, path, manually) {
         rmdirSync(path);
       } finally {
         if (manually) {
-          if (manuallyTrackedDirs[path] === unlink) {
-            delete manuallyTrackedDirs[path];
-          }
-        } else if (trackedDirs[path] === unlink) {
+          delete manuallyTrackedDirs[path];
+        } else {
           delete trackedDirs[path];
         }
       }
