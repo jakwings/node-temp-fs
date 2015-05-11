@@ -245,13 +245,12 @@ function queue(jobs) {
   next.call({});
 }
 
-function registerFilename(name, opts, callback) {
-  fs.open(name, SYS_FILE_FLAGS, opts.mode || SYS_FILE_MODE, function (err, fd) {
+function registerFilename(path, opts, callback) {
+  fs.open(path, SYS_FILE_FLAGS, opts.mode || SYS_FILE_MODE, function (err, fd) {
     if (err) {
       callback(null);
       return;
     }
-    var path = ps.resolve(name);
     var unlink;
     if (opts.track || (opts.track == null && tracking)) {
       if (!trackedFiles[fd] && !manuallyTrackedFiles[fd]) {
@@ -286,10 +285,9 @@ function generateFile() {
   registerFilename(generateName(opts), opts, registerCallback);
 }
 
-function registerFilenameSync(name, opts) {
+function registerFilenameSync(path, opts) {
   try {
-    var fd = fs.openSync(name, SYS_FILE_FLAGS, opts.mode || SYS_FILE_MODE);
-    var path = ps.resolve(name);
+    var fd = fs.openSync(path, SYS_FILE_FLAGS, opts.mode || SYS_FILE_MODE);
     var unlink;
     if (opts.track || (opts.track == null && tracking)) {
       if (!trackedFiles[fd] && !manuallyTrackedFiles[fd]) {
@@ -318,13 +316,12 @@ function generateFileSync(opts) {
   throw new Error('Failed to get a temporary file within limits.');
 }
 
-function registerDirname(name, opts, callback) {
-  fs.mkdir(name, opts.mode || SYS_DIR_MODE, function (err) {
+function registerDirname(path, opts, callback) {
+  fs.mkdir(path, opts.mode || SYS_DIR_MODE, function (err) {
     if (err) {
       callback(null);
       return;
     }
-    var path = ps.resolve(name);
     var unlink;
     var recursive = Boolean(opts.recursive);
     if (opts.track || (opts.track == null && tracking)) {
@@ -360,10 +357,9 @@ function generateDir() {
   registerDirname(generateName(opts), opts, registerCallback);
 }
 
-function registerDirnameSync(name, opts) {
+function registerDirnameSync(path, opts) {
   try {
-    fs.mkdirSync(name, opts.mode || SYS_DIR_MODE);
-    var path = ps.resolve(name);
+    fs.mkdirSync(path, opts.mode || SYS_DIR_MODE);
     var unlink;
     var recursive = Boolean(opts.recursive);
     if (opts.track || (opts.track == null && tracking)) {
@@ -423,14 +419,14 @@ function randomString(length) {
 function generateName(opts) {
   opts = opts || {};
   if (opts.name) {
-    return ps.join(opts.dir || tmpdir(), opts.name);
+    return ps.resolve(ps.join(opts.dir || tmpdir(), opts.name));
   }
   if (opts.template) {
     if (TEMPLATE_RE.test(opts.template)) {
       var name = opts.template.replace(TEMPLATE_RE, function (s) {
         return randomString(s.length);
       });
-      return ps.join(opts.dir || tmpdir(), name);
+      return ps.resolve(ps.join(opts.dir || tmpdir(), name));
     } else {
       throw new Error('Invalid template string.');
     }
@@ -444,7 +440,7 @@ function generateName(opts) {
     randomString(12),
     opts.suffix || ''
   ].join('');
-  return ps.join(opts.dir || tmpdir(), name);
+  return ps.resolve(ps.join(opts.dir || tmpdir(), name));
 }
 
 
