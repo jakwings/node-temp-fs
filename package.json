@@ -9,10 +9,14 @@
     "node": ">=0.8.0"
   },
   "scripts": {
-    "test": "node node_modules/mocha/bin/mocha --reporter spec --bail test/*.js"
+    "test": "node node_modules/mocha/bin/mocha --reporter spec test/*.js"
   },
   "dependencies": {
     "rimraf": "~2.3.3"
+  },
+  "devDependencies": {
+    "mocha": "~2.2.4",
+    "should": "~6.0.1"
   },
   "files": [
     "LICENSE",
