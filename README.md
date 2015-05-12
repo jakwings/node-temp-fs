@@ -130,7 +130,9 @@ properties:
 *   `path`: The absolute path to the tempfile.
 *   `fd`: An integer file descriptor.
 *   `unlink`: A special function for you to delete the file. If you invoke it
-    with a callback function, it will become asynchronous.
+    with a callback function, it will become asynchronous. If the file is not
+    tracked, it may throw when an error occurs or the first argument of the
+    callback function will be an Error object.
 
 ### tempfs.openSync([options]): file
 
@@ -144,7 +146,9 @@ arguments `error` and `dir`. If `error` is null, `dir` has these properties:
 *   `path`: The absolute path to the tempdir.
 *   `recursive`: Whether unlink() will remove the tempdir recursively.
 *   `unlink`: A special function for you to remove the directory. If you
-    invoke it with a callback function, it will become asynchronous.
+    invoke it with a callback function, it will become asynchronous. If the
+    directory is not tracked, it may throw when an error occurs or the first
+    argument of the callback function will be an Error object.
 
 ### tempfs.mkdirSync([options]): dir
 
@@ -157,11 +161,6 @@ Remove all tracked files and directories asynchronously.
 ### tempfs.clearSync()
 
 Remove all tracked files and directories synchronously.
-
-
-## Todo List
-
-- [ ] Add test scripts.
 
 
 ## License
