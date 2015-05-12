@@ -90,30 +90,38 @@ function clear(callback) {
   var jobs = [];
   for (var k in trackedFiles) {
     if (trackedFiles[k]) {
-      jobs.push(function (next) {
-        trackedFiles[k](next);
-      });
+      (function (k) {
+        jobs.push(function (next) {
+          trackedFiles[k](next);
+        });
+      })(k);
     }
   }
   for (var k in manuallyTrackedFiles) {
     if (manuallyTrackedFiles[k]) {
-      jobs.push(function (next) {
-        manuallyTrackedFiles[k](next);
-      });
+      (function (k) {
+        jobs.push(function (next) {
+          manuallyTrackedFiles[k](next);
+        });
+      })(k);
     }
   }
   for (var k in trackedDirs) {
     if (trackedDirs[k]) {
-      jobs.push(function (next) {
-        trackedDirs[k](next);
-      });
+      (function (k) {
+        jobs.push(function (next) {
+          trackedDirs[k](next);
+        });
+      })(k);
     }
   }
   for (var k in manuallyTrackedDirs) {
     if (manuallyTrackedDirs[k]) {
-      jobs.push(function (next) {
-        manuallyTrackedDirs[k](next);
-      });
+      (function (k) {
+        jobs.push(function (next) {
+          manuallyTrackedDirs[k](next);
+        });
+      })(k);
     }
   }
   callback && jobs.push(function (next) { callback(); });
