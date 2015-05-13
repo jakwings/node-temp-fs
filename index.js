@@ -90,42 +90,25 @@ function clear(callback) {
   var jobs = [];
   for (var k in trackedFiles) {
     if (trackedFiles[k]) {
-      (function (k) {
-        jobs.push(function (next) {
-          trackedFiles[k](next);
-        });
-      })(k);
+      jobs.push(trackedFiles[k]);
     }
   }
   for (var k in manuallyTrackedFiles) {
     if (manuallyTrackedFiles[k]) {
-      (function (k) {
-        jobs.push(function (next) {
-          manuallyTrackedFiles[k](next);
-        });
-      })(k);
+      jobs.push(manuallyTrackedFiles[k]);
     }
   }
   for (var k in trackedDirs) {
     if (trackedDirs[k]) {
-      (function (k) {
-        jobs.push(function (next) {
-          trackedDirs[k](next);
-        });
-      })(k);
+      jobs.push(trackedDirs[k]);
     }
   }
   for (var k in manuallyTrackedDirs) {
     if (manuallyTrackedDirs[k]) {
-      (function (k) {
-        jobs.push(function (next) {
-          manuallyTrackedDirs[k](next);
-        });
-      })(k);
+      jobs.push(manuallyTrackedDirs[k]);
     }
   }
-  callback && jobs.push(function (next) { callback(); });
-  queue(jobs);
+  parallel(jobs, callback);
 }
 
 function generateSimpleFileUnlinker(path) {
@@ -251,14 +234,21 @@ function generateDirUnlinker(recursive, path, manually) {
   return unlink;
 }
 
-function queue(jobs) {
-  var next = function() {
-    if (jobs.length && !this.called) {
-      this.called = true;
-      jobs.shift()(next.bind({}));
+function parallel(jobs, callback) {
+  var called = !callback;
+  var count = jobs.length;
+  var done = function () {
+    if (count > 0 && !this.called) {
+      count--;
+    }
+    if (count === 0 && !called) {
+      called = true;
+      callback();
     }
   };
-  next.call({});
+  for (var i = 0, l = jobs.length; i < l; i++) {
+    jobs[i](done.bind({}));
+  }
 }
 
 function registerFilename(path, opts, callback) {
