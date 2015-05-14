@@ -441,8 +441,6 @@ function generateName(opts) {
     opts.prefix || 'tmp-',
     Date.now(),
     '-',
-    process.pid,
-    '-',
     randomString(12),
     opts.suffix || ''
   ].join('');
