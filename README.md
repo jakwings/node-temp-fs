@@ -36,7 +36,7 @@ tempfs.open(function (err, file) {
 
 // Create a tempdir in current directory.
 tempfs.mkdir({
-    dir: './',
+    dir: '.',
     recursive: true,  // It and its content will be remove recursively.
     track: true  // Track this directory.
 }, function (err, dir) {
@@ -55,7 +55,8 @@ tempfs.mkdir({
 
 *   `limit: Number`
 
-    The maximum number of chance to retry before throwing an error. Default: 5
+    The maximum number of chance to retry before throwing an error. It should
+    be a finite number. Default: 5
 
 *   `recursive: Boolean`
 
@@ -107,14 +108,15 @@ is turned on again before the program exits.
 This switch does not affect manually tracked files through `options.track`.
 They will be removed automatically on exit.
 
-**Note: When an uncaught exception occurs, all temporary files and directories
-will be removed no matter it is on or off.**
+**Note: When an uncaught exception occurs, all tracked temporary files and
+directories will be removed no matter it is on or off.**
 
 ### tempfs.dir()
 
-Return the path of a system-provided tempdir. You should not make any
-assumption about whether the path contains a trailing path separator, or it
-is a real path.
+Return the path of a system-provided tempdir as `require('os').tmpdir()` does.
+You should not make any assumption about whether the path contains a trailing
+path separator, or it is a real path. On most system it is not a fixed path,
+and it can be changed by the user environment. When in doubt, check it first.
 
 ### tempfs.name([options])
 
@@ -136,7 +138,7 @@ properties:
 
 ### tempfs.openSync([options]): file
 
-The synchronous version of `tempfs.open`.
+The synchronous version of `tempfs.open`. It will throw when an error happens.
 
 ### tempfs.mkdir([options], [callback])
 
@@ -152,7 +154,7 @@ arguments `error` and `dir`. If `error` is null, `dir` has these properties:
 
 ### tempfs.mkdirSync([options]): dir
 
-The synchronous version of `tempfs.mkdir`.
+The synchronous version of `tempfs.mkdir`. It will throw when an error happens.
 
 ### tempfs.clear([callback])
 
