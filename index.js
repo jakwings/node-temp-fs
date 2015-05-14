@@ -276,7 +276,7 @@ function generateFile() {
   var args = getArgs(arguments);
   var opts = args[0];
   var callback = args[1];
-  var limit = opts.limit || 5;
+  var limit = (opts.limit != null && opts.limit < Infinity) ? opts.limit : 5;
   var registerCallback = function (file) {
     if (limit-- >= 0) {
       if (file) {
@@ -315,7 +315,7 @@ function registerFilenameSync(path, opts) {
 
 function generateFileSync(opts) {
   opts = opts || {};
-  var limit = opts.limit || 5;
+  var limit = (opts.limit != null && opts.limit < Infinity) ? opts.limit : 5;
   do {
     var file = registerFilenameSync(generateName(opts), opts);
     if (file) {
@@ -350,7 +350,7 @@ function generateDir() {
   var args = getArgs(arguments);
   var opts = args[0];
   var callback = args[1];
-  var limit = opts.limit || 5;
+  var limit = (opts.limit != null && opts.limit < Infinity) ? opts.limit : 5;
   var registerCallback = function (dir) {
     if (limit-- >= 0) {
       if (dir) {
@@ -390,7 +390,7 @@ function registerDirnameSync(path, opts) {
 
 function generateDirSync(opts) {
   opts = opts || {};
-  var limit = opts.limit || 5;
+  var limit = (opts.limit != null && opts.limit < Infinity) ? opts.limit : 5;
   do {
     var dir = registerDirnameSync(generateName(opts), opts);
     if (dir) {
