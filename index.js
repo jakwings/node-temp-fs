@@ -285,8 +285,10 @@ function generateFile() {
         registerFilename(generateName(opts), opts, registerCallback);
       }
     } else {
-      var err = new Error('Failed to get a temporary file within limits.');
-      callback && callback(err, null);
+      if (callback) {
+        var err = new Error('Failed to get a temporary file within limits.');
+        callback(err, null);
+      }
     }
   };
   registerFilename(generateName(opts), opts, registerCallback);
@@ -357,8 +359,10 @@ function generateDir() {
         registerDirname(generateName(opts), opts, registerCallback);
       }
     } else {
-      var err = new Error('Failed to get a temporary directory within limits.');
-      callback && callback(err, null);
+      if (callback) {
+        var err = new Error('Failed to get a temporary directory within limits.');
+        callback(err, null);
+      }
     }
   };
   registerDirname(generateName(opts), opts, registerCallback);
