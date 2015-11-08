@@ -240,6 +240,7 @@ function parallel(jobs, callback) {
   var count = jobs.length;
   var done = function () {
     if (count > 0 && !this.called) {
+      this.called = true;
       count--;
     }
     if (count === 0 && !called) {
