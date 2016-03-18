@@ -12,11 +12,11 @@
     "test": "node node_modules/mocha/bin/mocha --reporter spec test/*.js"
   },
   "dependencies": {
-    "rimraf": "~2.4.3"
+    "rimraf": "~2.5.2"
   },
   "devDependencies": {
-    "mocha": "~2.2.4",
-    "should": "~6.0.1"
+    "mocha": "~2.4.5",
+    "should": "~8.2.2"
   },
   "files": [
     "LICENSE",
