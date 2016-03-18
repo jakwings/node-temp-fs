@@ -12,11 +12,11 @@ describe('tempfs.clearSync()', function () {
     var tmpfile = ts.openSync({track: true});
     tmpdir != null && gc(tmpdir.path, true, true);
     tmpfile != null && gc(tmpdir.path, false, true);
-    should(tmpdir).be.a.tmpdir;
-    should(tmpfile).be.a.tmpfile;
+    should(tmpdir).be.a.tmpdir();
+    should(tmpfile).be.a.tmpfile();
     ts.clearSync();
-    should(tmpdir.path).not.be.a.realpath;
-    should(tmpfile.path).not.be.a.realpath;
+    should(tmpdir.path).not.be.a.realpath();
+    should(tmpfile.path).not.be.a.realpath();
   });
 
 });

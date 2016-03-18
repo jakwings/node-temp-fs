@@ -16,7 +16,7 @@ describe('tempfs.track()', function () {
       tmpfile != null && gc(tmpfile.path, false, false);
     });
     child.on('exit', function (exitcode, signal) {
-      should(tmpfile.path).not.be.a.realpath;
+      should(tmpfile.path).not.be.a.realpath();
       done();
     });
   });
@@ -29,7 +29,7 @@ describe('tempfs.track()', function () {
       tmpfile != null && gc(tmpfile.path, false, false);
     });
     child.on('exit', function (exitcode, signal) {
-      should(tmpfile.path).not.be.a.realpath;
+      should(tmpfile.path).not.be.a.realpath();
       done();
     });
   });

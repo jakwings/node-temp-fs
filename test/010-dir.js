@@ -9,7 +9,7 @@ describe('tempfs.dir()', function () {
 
   it('should return a valid default tmpdir for every test', function () {
     var path = ts.dir();
-    should(path).be.a.dirpath;
+    should(path).be.a.dirpath();
   });
 
 });

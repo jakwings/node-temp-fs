@@ -27,10 +27,10 @@ describe('uncaught exception', function () {
     });
     child.on('exit', function (exitcode, signal) {
       for (var i = 0; i < tmpdirs.length; i++) {
-        should(tmpdirs[i].path).not.be.a.realpath;
+        should(tmpdirs[i].path).not.be.a.realpath();
       }
       for (var i = 0; i < tmpfiles.length; i++) {
-        should(tmpfiles[i].path).not.be.a.realpath;
+        should(tmpfiles[i].path).not.be.a.realpath();
       }
       done();
     });

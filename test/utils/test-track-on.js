@@ -8,6 +8,6 @@ ts.track();
 
 var playground = ps.join(__dirname, '..', 'playground');
 var tmpfile = ts.openSync({dir: playground});
-should(tmpfile).be.a.tmpfile;
+should(tmpfile).be.a.tmpfile();
 process.send(tmpfile);
 process.exit(0);
