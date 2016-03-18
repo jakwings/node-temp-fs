@@ -6,7 +6,7 @@ var rm = require('rimraf');
 var dirs = {};
 var files = {};
 
-process.addListener('exit', function () {
+var clear = function () {
   for (var path in files) {
     try {
       if (files[path]) {
@@ -27,29 +27,14 @@ process.addListener('exit', function () {
     } catch (e) {}
     delete dirs[path];
   }
+};
+
+process.addListener('exit', function () {
+  clear();
 });
 
 var onUncaughtException = function (err) {
-  for (var path in files) {
-    try {
-      if (files[path]) {
-        fs.unlinkSync(path);
-      } else {
-        rm.sync(path);
-      }
-    } catch (e) {}
-    delete files[path];
-  }
-  for (var path in dirs) {
-    try {
-      if (dirs[path]) {
-        fs.rmdirSync(path);
-      } else {
-        rm.sync(path);
-      }
-    } catch (e) {}
-    delete dirs[path];
-  }
+  clear();
   throw err;
 };
 process.addListener('uncaughtException', onUncaughtException);
