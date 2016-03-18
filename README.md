@@ -1,7 +1,8 @@
 # temp-fs
 
-[![Build Status](https://travis-ci.org/jakwings/node-temp-fs.svg)](https://travis-ci.org/jakwings/node-temp-fs)
 [![NPM version](https://badge.fury.io/js/temp-fs.svg)](http://badge.fury.io/js/temp-fs)
+[![Build Status](https://travis-ci.org/jakwings/node-temp-fs.svg)](https://travis-ci.org/jakwings/node-temp-fs)
+[![Build status](https://ci.appveyor.com/api/projects/status/bf2307asbeh59xht/branch/master?svg=true)](https://ci.appveyor.com/project/jakwings/node-temp-fs/branch/master)
 
 A temporary file and directory creator for io.js and Node.js™.
 
