@@ -139,7 +139,7 @@ function generateSimpleDirUnlinker(path, recursive) {
     called = true;
     if (callback) {
       if (recursive) {
-        rm(path, function (err) {
+        rm(path, {disableGlob: true}, function (err) {
           callback && callback(err);
         });
       } else {
@@ -149,7 +149,7 @@ function generateSimpleDirUnlinker(path, recursive) {
       }
     } else {
       if (recursive) {
-        rm.sync(path);
+        rm.sync(path, {disableGlob: true});
       } else {
         fs.rmdirSync(path);
       }
@@ -202,8 +202,10 @@ function generateDirUnlinker(recursive, path, manually) {
     }
     called = true;
     if (callback) {
-      var rmdir = recursive ? rm : fs.rmdir.bind(fs);
-      rmdir(path, function (err) {
+      var rmdir = recursive ? rm : function (path, opts, callback) {
+        fs.rmdir(path, callback);
+      };
+      rmdir(path, {disableGlob: true}, function (err) {
         if (manually) {
           delete manuallyTrackedDirs[path];
         } else {
@@ -214,7 +216,7 @@ function generateDirUnlinker(recursive, path, manually) {
     } else {
       try {
         if (recursive) {
-          rm.sync(path);
+          rm.sync(path, {disableGlob: true});
         } else {
           fs.rmdirSync(path);
         }
